@@ -4,7 +4,7 @@ about: "Ticket JIRA ou remontée d'un référent numérique"
 title: ''
 type: 'QA Issue'
 labels: 'JIRA/Référent'
-assignees: '@aziegler'
+assignees: 'aziegler'
 ---
 #### Contexte
  - Lien vers le JIRA Docaposte
