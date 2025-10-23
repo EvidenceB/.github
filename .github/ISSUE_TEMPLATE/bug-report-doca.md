@@ -3,8 +3,8 @@ name: 'Retour Référent numérique'
 about: "Ticket JIRA ou remontée d'un référent numérique"
 title: ''
 type: 'QA Issue'
-label: 'Jira/Référent'
-assignee: '@axlez'
+label: 'JIRA/Référent'
+assignee: '@aziegler'
 ---
 #### Contexte
  - Lien vers le JIRA Docaposte
