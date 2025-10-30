@@ -85,12 +85,12 @@ module.exports = async ({ github, context, core }) => {
         repository(owner:$owner, name:$repo) {
           issue(number:$number) {
             projectItems(first:10) {
-              nodes { id project { id } }
+              nodes { id project { $projectId } }
             }
           }
         }
       }`;
-    const rItem = await github.graphql(qItem, { owner, repo, number: issueNumber });
+    const rItem = await github.graphql(qItem, { owner, repo, number: issueNumber, projectId: actualProjectId });
     const items = rItem.repository.issue.projectItems.nodes.filter(n => n.project.id === actualProjectId);
     
     if (!items.length) return null;
