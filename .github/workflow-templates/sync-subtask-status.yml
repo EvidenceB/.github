@@ -1,0 +1,25 @@
+name: "[Template] Sync Epic ↔ Sub-issues (ProjectV2)"
+
+on:
+  issues:
+    types: [opened, edited, labeled, unlabeled, reopened, closed]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+      repository-projects: write
+    env:
+      PROJECT_NUMBER: "6"
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run sync script
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fn = require('./scripts/sync-subtask.js');
+            await fn({ github, context, core });
