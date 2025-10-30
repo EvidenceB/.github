@@ -6,7 +6,6 @@ module.exports = async ({ github, context, core }) => {
   const PROJECT_NUMBER = process.env.PROJECT_NUMBER;
   const STATUS_FIELD_NAME = "Status";
 
-  // Get project ID from project number if needed
   async function getProjectId() {    
     const query = `
       query($owner: String!, $number: Int!) {
@@ -16,9 +15,10 @@ module.exports = async ({ github, context, core }) => {
       }`;
       
     try {
-      const result = await github.graphql(query, { owner, number: parseInt(PROJECT_NUMBER) });
+      const result = await github.graphql(query, { owner: "EvidenceB", number: 6 });
       return result.user?.projectV2?.id || result.organization?.projectV2?.id;
     } catch (e) {
+      core.erro(`result ${result}`)
       core.error(`Failed to get project ID from number ${PROJECT_NUMBER}: ${e.message}`);
       throw e;
     }
