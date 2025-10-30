@@ -24,7 +24,7 @@ module.exports = async ({ github, context, core }) => {
     }
   }
 
-  const actualProjectId = await getProjectId();
+  const actualProjectId = "PVT_kwDOA5i8as4BC9Vt";
 
   async function getStatusFieldInfo() {
     const q = `
