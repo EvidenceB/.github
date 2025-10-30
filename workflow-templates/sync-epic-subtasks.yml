@@ -1,8 +1,6 @@
-name: "Synchro Epic/Taches"
-description: ""
+name: "Reusable: Sync Epic/Subtasks"
 on:
-  issues:
-    types: [opened, edited, labeled, unlabeled, reopened, closed]
+  workflow_call:
 
 jobs:
   sync:
@@ -11,16 +9,20 @@ jobs:
       contents: read
       issues: write
       repository-projects: write
-    env:
-      PROJECT_NUMBER: "1"
-      STATUS_FIELD_NAME: "Status"
+
     steps:
-      - name: Checkout repo
+      - name: Checkout shared .github repo
         uses: actions/checkout@v4
+        with:
+          repository: EvidenceB/.github # replace your-org
+          path: .github_shared
+          ref: main
 
       - name: Run sync script
         uses: actions/github-script@v7
+        env:
+          PROJECT_NUMBER: "6"
         with:
           script: |
-            const fn = require('./.github/scripts/sync-subtask.js');
-            await fn({ github, context, core });
+            const fn = require('./.github_shared/scripts/sync-subtask.js');
+            await fn({ github, context, core, projectNumber: process.env.PROJECT_NUMBER });
