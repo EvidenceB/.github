@@ -1,7 +1,6 @@
 name: "Reusable: Sync Epic/Subtasks"
 on:
   workflow_call:
-
 jobs:
   sync:
     runs-on: ubuntu-latest
