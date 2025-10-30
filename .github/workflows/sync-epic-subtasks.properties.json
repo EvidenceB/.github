@@ -1,0 +1,7 @@
+{
+  "name": "Synchro Epic/Taches",
+  "description": "Syncrho les tâces avec les epics",
+  "iconName": "project-roadmap",
+  "categories": ["project-management", "automation", "issues"],
+  "filePatterns": [".github/scripts/sync-subtask.js"]
+}
