@@ -16,9 +16,9 @@ module.exports = async ({ github, context, core }) => {
       
     try {
       const result = await github.graphql(query, { owner: "EvidenceB", number: 6 });
+      core.error(`result ${result}`)
       return result.user?.projectV2?.id || result.organization?.projectV2?.id;
-    } catch (e) {
-      core.erro(`result ${result}`)
+    } catch (e) {      
       core.error(`Failed to get project ID from number ${PROJECT_NUMBER}: ${e.message}`);
       throw e;
     }
