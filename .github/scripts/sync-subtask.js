@@ -10,9 +10,6 @@ module.exports = async ({ github, context, core }) => {
   async function getProjectId() {    
     const query = `
       query($owner: String!, $number: Int!) {
-        user(login: $owner) {
-          projectV2(number: $number) { id }
-        }
         organization(login: $owner) {
           projectV2(number: $number) { id }
         }
