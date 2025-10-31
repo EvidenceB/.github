@@ -3,28 +3,71 @@ module.exports = async ({ github, context, core }) => {
   const repo = context.repo.repo;
   const issueNumber = context.payload.issue.number;
 
-  const PROJECT_NUMBER = process.env.PROJECT_NUMBER;
   const STATUS_FIELD_NAME = "Status";
-
-  async function getProjectId() {    
-    const query = `
-      query($owner: String!, $number: Int!) {
-        organization(login: $owner) {
-          projectV2(number: $number) { id }
-        }
-      }`;
-      
-    try {
-      const result = await github.graphql(query, { owner: "EvidenceB", number: 6 });
-      core.error(`result ${result}`)
-      return result.user?.projectV2?.id || result.organization?.projectV2?.id;
-    } catch (e) {      
-      core.error(`Failed to get project ID from number ${PROJECT_NUMBER}: ${e.message}`);
-      throw e;
-    }
-  }
-
+ 
   const actualProjectId = "PVT_kwDOA5i8as4BC9Vt";
+
+async function listProjectIssues(projectId = actualProjectId) {
+    let hasNextPage = true;
+    let after = null;
+
+    while (hasNextPage) {
+        const q = `
+            query ($after:String) {
+                node(id:"PVT_kwDOA5i8as4BC9Vt") {
+                    ... on ProjectV2 {
+                        items(first:100, after:$after) {
+                            nodes {
+                                id
+                                content {
+                                    ... on Issue {
+                                            number
+                                            title
+                                            issueType {
+                                                name
+                                                
+                                            }
+                                            subIssues(first:100) {
+                                                nodes {
+                                                    id
+                                                    number
+                                                }
+                                            }
+                                            
+
+                                        }
+                                }
+                                fieldValueByName(name:"Status") {
+                                    ... on ProjectV2ItemFieldSingleSelectValue {
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }`;
+        const res = await github.graphql(q, { projectId, after });
+        const items = res.node?.items?.nodes || [];
+
+        for (const it of items) {
+            content = it.content;
+            if (!content) continue;
+            core.info(`issue ${content}`)
+            if (content.issueType?.name == "Epic") {
+                
+                parentStatus =  it.fieldValueByName?.name
+                core.info(`is Epic with status ${parentStatus}`)
+            }
+        }
+
+        const pageInfo = res.node?.items?.pageInfo;
+        hasNextPage = pageInfo?.hasNextPage || false;
+        after = pageInfo?.endCursor || null;
+    }
+
+    return results;
+}
 
   async function getStatusFieldInfo() {
     const q = `
@@ -42,74 +85,6 @@ module.exports = async ({ github, context, core }) => {
       }`;
     const res = await github.graphql(q, { projectId: actualProjectId, fieldName: STATUS_FIELD_NAME });
     return res.node.field;
-  }
-
-  async function isEpic(issueNumber) {
-    const q = `
-      query($owner:String!, $repo:String!, $number:Int!) {
-        repository(owner:$owner, name:$repo) {
-          issue(number:$number) { issueType { name } }
-        }
-      }`;
-    const r = await github.graphql(q, { owner, repo, number: issueNumber });
-    return r.repository.issue.issueType?.name === "Epic";
-  }
-
-  async function getParentIssue(childNumber) {
-    try {
-      const { data } = await github.request(
-        'GET /repos/{owner}/{repo}/issues/{issue_number}/parent',
-        { owner, repo, issue_number: childNumber }
-      );
-      return data;
-    } catch (e) {
-      return null;
-    }
-  }
-
-  async function listSubIssues(parentNumber) {
-    try {
-      const { data } = await github.request(
-        'GET /repos/{owner}/{repo}/issues/{issue_number}/sub_issues',
-        { owner, repo, issue_number: parentNumber }
-      );
-      return data || [];
-    } catch (e) {
-      return [];
-    }
-  }
-
-  async function getIssueStatus(issueNumber) {
-    const qItem = `
-      query($owner:String!, $repo:String!, $number:Int!, $projectId:ID!) {
-        repository(owner:$owner, name:$repo) {
-          issue(number:$number) {
-            projectItems(first:10) {
-              nodes { id project { $projectId } }
-            }
-          }
-        }
-      }`;
-    const rItem = await github.graphql(qItem, { owner, repo, number: issueNumber, projectId: actualProjectId });
-    const items = rItem.repository.issue.projectItems.nodes.filter(n => n.project.id === actualProjectId);
-    
-    if (!items.length) return null;
-    
-    const itemId = items[0].id;
-    const fieldInfo = await getStatusFieldInfo();
-    
-    const qStatus = `
-      query($itemId:ID!, $fieldId:ID!) {
-        node(id:$itemId) {
-          ... on ProjectV2Item {
-            fieldValueByFieldId(fieldId:$fieldId) {
-              ... on ProjectV2ItemFieldSingleSelectValue { name }
-            }
-          }
-        }
-      }`;
-    const resStatus = await github.graphql(qStatus, { itemId, fieldId: fieldInfo.id });
-    return resStatus.node.fieldValueByFieldId?.name || null;
   }
 
   async function updateIssueStatus(issueNumber, newStatus) {
@@ -181,19 +156,8 @@ module.exports = async ({ github, context, core }) => {
         return;
   }
 
-  core.info(`Processing issue #${issueNumber}`);
+  core.info(`Processing`);
+  await listProjectIssues();
 
-  if (await isEpic(issueNumber)) {
-    core.info(`Issue #${issueNumber} is an epic - processing sub-issues`);
-    return await syncSubIssuesStatus(issueNumber);
-  }
-
-  const parent = await getParentIssue(issueNumber);
-  if (!parent) {
-    core.info(`Issue #${issueNumber} is not an epic and has no parent - terminating`);
-    return;
-  }
-
-  core.info(`Issue #${issueNumber} has parent #${parent.number} - processing as epic`);
-  return await syncSubIssuesStatus(parent.number);
+  
 };
