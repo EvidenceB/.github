@@ -1,7 +1,6 @@
 module.exports = async ({ github, context, core }) => {
   const owner = context.repo.owner;
   const repo = context.repo.repo;
-  const issueNumber = context.payload.issue.number;
 
   const STATUS_FIELD_NAME = "Status";
  
