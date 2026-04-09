@@ -1,13 +1,15 @@
 --- 
-name: "Demande d'export de donnée'"
+name: "Demande d'export de donnée"
 about: "Ticket JIRA ou remontée d'un référent numérique"
-title: ''
-type: 'QA Issue'
-labels: 'JIRA/Référent'
+title: 'Demande d'export de donnée'
+type: 'Task'
+labels: 'Export'
 assignees: 'jeckel'
 ---
 
 # Demande d'export des données élèves / exercices :
+
+> Préciser en quelques mots le contexte
 
 ## Configuration de l'export
 
@@ -32,7 +34,7 @@ assignees: 'jeckel'
 
 ## Demandes supplémentaires
 
-> Ajouter aussi les besoins supplémentaires, précisions, contexte, etc.
+> Ajouter aussi les besoins supplémentaires, précisions, etc.
 
 ## Documentation
 
