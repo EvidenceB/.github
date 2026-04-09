@@ -1,6 +1,6 @@
 --- 
 name: "Demande d'export de donnée"
-about: "Ticket JIRA ou remontée d'un référent numérique"
+about: "Demande d'export des données élève / exercices"
 title: "Demande d'export de donnée"
 type: 'Task'
 labels: 'Export'
