@@ -1,7 +1,7 @@
 --- 
 name: "Demande d'export de donnée"
 about: "Ticket JIRA ou remontée d'un référent numérique"
-title: 'Demande d'export de donnée'
+title: "Demande d'export de donnée"
 type: 'Task'
 labels: 'Export'
 assignees: 'jeckel'
